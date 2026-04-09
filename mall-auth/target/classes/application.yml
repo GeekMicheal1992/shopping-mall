@@ -1,0 +1,46 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: mall-auth
+
+  datasource:
+    url: jdbc:mysql://192.168.68.150:3306/mall_auth?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # Redis 配置（Spring Boot 3 使用 spring.data.redis 前缀）
+  data:
+    redis:
+      host: 192.168.68.150
+      port: 6379
+      database: 0
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.mall.auth.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+# JWT 配置
+jwt:
+  secret: mall-secret-key-2024-spring-security-jwt-token
+  expiration: 86400000  # 24小时，单位毫秒
+  refresh-expiration: 604800000  # 7天，单位毫秒
+  header: Authorization
+  prefix: Bearer
+
+# 日志配置
+logging:
+  level:
+    com.mall.auth: debug
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

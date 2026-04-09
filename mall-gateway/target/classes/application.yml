@@ -1,0 +1,100 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: mall-gateway
+
+  # Redis 配置（限流）
+  data:
+    redis:
+      host: 192.168.68.150
+      port: 6379
+      database: 0
+      timeout: 5000ms
+
+  # Cloud Gateway 配置
+  cloud:
+    gateway:
+      # 全局配置
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000" # 替换为允许的具体域名
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+      # 路由配置
+      routes:
+        # 认证服务路由
+        - id: mall-auth
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+
+        # 用户服务路由
+        - id: mall-user
+          uri: lb://mall-user
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@ipKeyResolver}"
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+
+        # 商品服务路由
+        - id: mall-product
+          uri: lb://mall-product
+          predicates:
+            - Path=/product/**
+          filters:
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@ipKeyResolver}"
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+
+        # 订单服务路由
+        - id: mall-order
+          uri: lb://mall-order
+          predicates:
+            - Path=/order/**
+          filters:
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@ipKeyResolver}"
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+
+# 日志配置
+logging:
+  level:
+    com.mall.gateway: DEBUG
+    com.mall.gateway.filter: DEBUG
+    org.springframework.cloud.gateway: debug
+    org.springframework.http.server.reactive: debug
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+security:
+  whitelist:
+    exact:
+      -  /auth/login
+      - /auth/refresh
+      - /error
+    prefix:
+    -  /auth/*
+    - /actuator/**
