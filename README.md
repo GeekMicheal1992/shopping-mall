@@ -48,4 +48,4 @@ This project is a distributed e-commerce system based on Spring Cloud, designed 
 3. Start mall-auth, mall-gateway, and other business modules
 4. Access APIs via Postman or a front-end project
 
-> **Note:** docs and docker-related files are not uploaded. Please add them as needed for deployment.
+> **Note:** docs and docker-related files are not uploaded. Please add them as needed for deployment, I will keep update everday until it finish.
