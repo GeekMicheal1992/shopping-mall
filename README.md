@@ -37,15 +37,3 @@ This project is a distributed e-commerce system based on Spring Cloud, designed 
 
 - Interview portfolio, showcasing microservices design and hands-on skills
 - Personal learning, secondary development, or enterprise-level project reference
-
-## Quick Start
-
-1. Clone the project
-   ```bash
-   git clone https://github.com/GeekMicheal1992/shopping-mall.git
-   ```
-2. Configure database, Redis, and other dependencies
-3. Start mall-auth, mall-gateway, and other business modules
-4. Access APIs via Postman or a front-end project
-
-> **Note:** docs and docker-related files are not uploaded. Please add them as needed for deployment, I will keep update everday until it finish.

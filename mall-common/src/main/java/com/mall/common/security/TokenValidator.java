@@ -4,14 +4,17 @@ import java.util.Date;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+
 
 public class TokenValidator {
     private static final String SECRET_KEY = "your-256-bit-secret"; 
 
     public static Claims parseToken(String token) {
         try {
-               return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
+               return Jwts.parser()
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -21,7 +24,6 @@ public class TokenValidator {
         }
       
     public static boolean validateToken(String token) {
-        
         Claims claims = parseToken(token);
         if (claims == null) {
             return false;

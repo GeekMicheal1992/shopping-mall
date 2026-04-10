@@ -34,4 +34,25 @@ public class GatewayRateLimitConfig {
         }
         return "unknown";
     }
+
+    @Bean("userKeyResolver")
+    public KeyResolver userKeyResolver() {
+        return exchange -> {
+           String userId = exchange.getRequest().getHeaders().getFirst("X-User-Id");
+           if(userId != null && !userId.isBlank()) {
+            return Mono.just("user:" + userId);
+           }
+           else {
+            return Mono.just("ip:" + resolveClientIp(exchange));
+           }
+        };
+    }
+
+     @Bean("apiKeyResolver")
+    public KeyResolver apiKeyResolver() {
+        return exchange -> {
+              String path = exchange.getRequest().getURI().getPath();
+              return Mono.just("api:" + path);
+        };
+    }
 }

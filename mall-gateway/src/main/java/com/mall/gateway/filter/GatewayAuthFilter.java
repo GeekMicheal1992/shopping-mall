@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,8 +30,10 @@ public class GatewayAuthFilter  implements GlobalFilter, Ordered {
 
     private final WhitelistMatcher whitelistMatcher;
     private static final Logger log = LoggerFactory.getLogger(GatewayAuthFilter.class);
-    public GatewayAuthFilter(WhitelistMatcher whitelistMatcher) {
+    private final RedisTemplate<String, String> redisTemplate;
+    public GatewayAuthFilter(WhitelistMatcher whitelistMatcher, RedisTemplate<String, String> redisTemplate) {
         this.whitelistMatcher = whitelistMatcher;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -51,7 +54,11 @@ public class GatewayAuthFilter  implements GlobalFilter, Ordered {
         if (claims == null) {
             return writeUnauthorized(exchange.getResponse(), exchange.getRequest().getId(), ErrorCode.TOKEN_INVALID);
         }
-
+        String jti = claims.get("jti", String.class);
+        String  redisKey = "auth:token:blacklist:" + jti;
+        if(redisTemplate.hasKey(redisKey)){
+            return writeUnauthorized(exchange.getResponse(), exchange.getRequest().getId(), ErrorCode.TOKEN_INVALID);
+        }
         String  UserId = claims.get("userId", String.class);
         String userName = claims.get("userName", String.class);
 

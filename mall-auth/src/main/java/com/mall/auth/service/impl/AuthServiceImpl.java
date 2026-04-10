@@ -1,5 +1,6 @@
 package com.mall.auth.service.impl;
 import org.springframework.stereotype.Service;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,11 +26,11 @@ public class AuthServiceImpl implements AuthService {
     private final StringRedisTemplate stringRedisTemplate;
     private static final String TOKEN_BLACKLIST_PREFIX = "auth:token:blacklist:";
 
-
     public AuthServiceImpl(AuthUserMapper authUserMapper, JwtService jwtService, StringRedisTemplate stringRedisTemplate) {
         this.authUserMapper = authUserMapper;
         this.jwtService = jwtService;
         this.stringRedisTemplate = stringRedisTemplate;
+        
     }
 
     @Override
@@ -109,23 +110,22 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout(String accessToken) {
-
-        if (accessToken == null || accessToken.trim().isEmpty()) {
+        if(accessToken == null || accessToken.trim().isEmpty()) {
             throw new BizException(ErrorCode.PARAM_INVALID);
         }
         if (!jwtService.validateAccessToken(accessToken)) {
-        throw new BizException(ErrorCode.TOKEN_INVALID);
-        }
-        String jti = jwtService.getJti(accessToken);
-        long ttlSeconds = jwtService.getRemainingSeconds(accessToken);
-        if (jti ==null || jti.trim().isEmpty()) {
             throw new BizException(ErrorCode.TOKEN_INVALID);
         }
-        if(ttlSeconds <= 0) {
-            return;
+
+        String jti = jwtService.getJti(accessToken);
+        long ttlSeconds = jwtService.getRemainingSeconds(accessToken);
+        if (jti == null || jti.trim().isEmpty()) {
+            throw new BizException(ErrorCode.TOKEN_INVALID);
         }
-        String blacklistKey = TOKEN_BLACKLIST_PREFIX + jti;
-        stringRedisTemplate.opsForValue().set(blacklistKey, "1", ttlSeconds, TimeUnit.SECONDS);
+        if (ttlSeconds > 0) {
+            String blacklistKey = TOKEN_BLACKLIST_PREFIX  + jti;
+            stringRedisTemplate.opsForValue().set(blacklistKey, "1", ttlSeconds, TimeUnit.SECONDS);
+        }     
 
     }
 

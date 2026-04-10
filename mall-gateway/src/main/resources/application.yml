@@ -40,6 +40,23 @@ spring:
             - Path=/auth/**
           filters:
             - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@ipKeyResolver}"
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+
+        - id: mall-auth-login
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/login
+          filters:
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@ipKeyResolver}"
+                redis-rate-limiter.replenishRate: 3
+                redis-rate-limiter.burstCapacity: 5
 
         # 用户服务路由
         - id: mall-user
@@ -50,7 +67,7 @@ spring:
             - StripPrefix=1
             - name: RequestRateLimiter
               args:
-                key-resolver: "#{@ipKeyResolver}"
+                key-resolver: "#{@userKeyResolver}"
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
 
@@ -88,7 +105,7 @@ logging:
     org.springframework.cloud.gateway: debug
     org.springframework.http.server.reactive: debug
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId}] %-5level %logger{36} - %msg%n"
 security:
   whitelist:
     exact:
