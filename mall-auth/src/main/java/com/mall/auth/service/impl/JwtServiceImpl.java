@@ -42,14 +42,14 @@ public class JwtServiceImpl implements JwtService {
         Date expiry = new Date(now.getTime() + accessExpireMs);
         String jti = UUID.randomUUID().toString();
 
-         return Jwts.builder()
-            .setId(jti)
-            .setSubject(username)
-            .claim(CLAIM_UID, userId)
-            .claim(CLAIM_TYPE, TYPE_ACCESS)
-            .setIssuedAt(now)
-            .setExpiration(expiry)
-            .signWith(signingKey)
+        return Jwts.builder()
+            .id(jti)                          
+            .subject(username)                
+            .claim(CLAIM_UID, userId)          
+            .claim(CLAIM_TYPE, TYPE_ACCESS)    
+            .issuedAt(now)                    
+            .expiration(expiry)                
+            .signWith(signingKey)             
             .compact();
     }
 
@@ -59,15 +59,15 @@ public class JwtServiceImpl implements JwtService {
         Date expiry = new Date(now.getTime() + refreshExpireMs);
         String jti = UUID.randomUUID().toString();
 
-         return Jwts.builder()
-            .setId(jti)
-            .setSubject(username)
-            .claim(CLAIM_UID, userId)
-            .claim(CLAIM_TYPE, TYPE_REFRESH)
-            .setIssuedAt(now)
-            .setExpiration(expiry)
-            .signWith(signingKey)
-            .compact();   
+        return Jwts.builder()
+                .id(jti)
+                .subject(username)
+                .claim(CLAIM_UID, userId)
+                .claim(CLAIM_TYPE, TYPE_REFRESH)
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(signingKey)
+                .compact();
     }
 
     @Override

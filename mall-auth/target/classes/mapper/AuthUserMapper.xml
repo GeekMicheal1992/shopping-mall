@@ -22,4 +22,48 @@
         LIMIT 1
     </select>
 
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO auth_user (
+            username,
+            password_hash,
+            nickname,
+            phone,
+            email,
+            status,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{username},
+            #{passwordHash},
+            #{nickname},
+            #{phone},
+            #{email},
+            #{status},
+            #{createdAt},
+            #{updatedAt}
+        )
+    </insert>
+
+    <update id="updateLastLoginAt">
+        UPDATE auth_user
+        SET last_login_at = #{lastLoginAt}
+        WHERE id = #{id}        
+    </update>
+
+    <select id="selectById" resultType="com.mall.auth.entity.AuthUser">
+        SELECT
+            id,
+            username,
+            password_hash,
+            nickname,
+            phone,
+            email,
+            status,
+            last_login_at,
+            created_at,
+            updated_at
+        FROM auth_user
+        WHERE id = #{id}
+    </select>
+
 </mapper>

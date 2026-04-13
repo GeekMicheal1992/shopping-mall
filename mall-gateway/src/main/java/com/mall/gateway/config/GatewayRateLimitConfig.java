@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
@@ -14,6 +15,7 @@ public class GatewayRateLimitConfig {
     /*
         提供 ipKeyResolver Bean，给 yml 里的 RequestRateLimiter 使用，决定“按谁限流”（你现在按 IP）。
      */
+    @Primary
     @Bean("ipKeyResolver")
     public KeyResolver ipKeyResolver() {
         return exchange -> Mono.just(resolveClientIp(exchange));

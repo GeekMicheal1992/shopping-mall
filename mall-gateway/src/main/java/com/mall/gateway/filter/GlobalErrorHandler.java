@@ -63,6 +63,7 @@ public class GlobalErrorHandler implements ErrorWebExceptionHandler  {
                     case 403: return ErrorCode.FORBIDDEN;
                     case 404: return ErrorCode.NOT_FOUND;
                     case 429: return ErrorCode.RATE_LIMITED;
+                    case 504: return ErrorCode.GATEWAY_TIMEOUT;
                     default: return ErrorCode.SYSTEM_ERROR;   
             }
                     

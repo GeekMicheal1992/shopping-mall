@@ -6,16 +6,28 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Debug (Launch) - GatewayApplication",
+            "name": "UserApplication",
             "request": "launch",
-            "mainClass": "com.mall.gateway.GatewayApplication",
-            "vmArgs": "-Dfile.encoding=UTF-8"
+            "mainClass": "UserApplication",
+            "projectName": "mall-user"
         },
         {
             "type": "java",
-            "name": "Current File",
+            "name": "Gateway - Local",
             "request": "launch",
-            "mainClass": "${file}"
+            "mainClass": "com.mall.gateway.GatewayApplication",
+            "projectName": "mall-gateway",
+            "vmArgs": "-Dfile.encoding=UTF-8",
+            "args": "--spring.profiles.active=local"
+        },
+        {
+            "type": "java",
+            "name": "Gateway - Prod",
+            "request": "launch",
+            "mainClass": "com.mall.gateway.GatewayApplication",
+            "projectName": "mall-gateway",
+            "vmArgs": "-Dfile.encoding=UTF-8",
+            "args": "--spring.profiles.active=prod"
         },
         {
             "type": "java",
@@ -27,11 +39,9 @@
         },
         {
             "type": "java",
-            "name": "GatewayApplication",
+            "name": "Current File",
             "request": "launch",
-            "mainClass": "com.mall.gateway.GatewayApplication",
-            "projectName": "mall-gateway",
-            "vmArgs": "-Dfile.encoding=UTF-8"
+            "mainClass": "${file}"
         }
     ]
 }

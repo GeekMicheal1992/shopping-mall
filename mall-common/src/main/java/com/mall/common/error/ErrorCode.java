@@ -10,7 +10,8 @@ public enum ErrorCode {
     TOKEN_EXPIRED(2002, "token已过期"),
     FORBIDDEN(2004, "无权限"),
     RATE_LIMITED(2005, "请求过于频繁"),
-    NOT_FOUND(404, "请求路径不存在");
+    NOT_FOUND(404, "请求路径不存在"),
+    GATEWAY_TIMEOUT(504, "网关超时，请稍后重试");
 
     private final int code;
     private final String message;

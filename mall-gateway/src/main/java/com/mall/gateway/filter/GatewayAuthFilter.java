@@ -31,16 +31,17 @@ public class GatewayAuthFilter  implements GlobalFilter, Ordered {
     private final WhitelistMatcher whitelistMatcher;
     private static final Logger log = LoggerFactory.getLogger(GatewayAuthFilter.class);
     private final RedisTemplate<String, String> redisTemplate;
-    public GatewayAuthFilter(WhitelistMatcher whitelistMatcher, RedisTemplate<String, String> redisTemplate) {
+    private final TokenValidator tokenValidator;
+    public GatewayAuthFilter(WhitelistMatcher whitelistMatcher, RedisTemplate<String, String> redisTemplate, TokenValidator tokenValidator) {
         this.whitelistMatcher = whitelistMatcher;
         this.redisTemplate = redisTemplate;
+        this.tokenValidator = tokenValidator;
     }
 
     @Override
     //ServerWebExchange 包含了请求和响应的信息，GatewayFilterChain 用来继续调用下一个过滤器。
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
-        log.debug("Enter GatewayAuthFilter, path: {}", path);
         if (whitelistMatcher.isWhitelisted(path)) {
             return chain.filter(exchange);
         }
@@ -50,7 +51,7 @@ public class GatewayAuthFilter  implements GlobalFilter, Ordered {
 
         }
         String token = authHeader.substring(7);
-        Claims claims = TokenValidator.parseToken(token);
+       Claims claims = tokenValidator.parseToken(token);
         if (claims == null) {
             return writeUnauthorized(exchange.getResponse(), exchange.getRequest().getId(), ErrorCode.TOKEN_INVALID);
         }
@@ -59,9 +60,10 @@ public class GatewayAuthFilter  implements GlobalFilter, Ordered {
         if(redisTemplate.hasKey(redisKey)){
             return writeUnauthorized(exchange.getResponse(), exchange.getRequest().getId(), ErrorCode.TOKEN_INVALID);
         }
-        String  UserId = claims.get("userId", String.class);
-        String userName = claims.get("userName", String.class);
+        Integer userIdInt  = claims.get("uid", Integer.class);
+        String userName = claims.get("sub", String.class);
 
+        String UserId = String.valueOf(userIdInt);
         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                 .header("X-User-Id", UserId)
                 .header("X-User-Name", userName)

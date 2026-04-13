@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
 import com.mall.auth.dto.LoginRequest;
+import com.mall.auth.dto.RegisterRequest;
 import com.mall.auth.entity.AuthUser;
 import com.mall.auth.mapper.AuthUserMapper;
 import com.mall.auth.service.AuthService;
@@ -14,6 +15,8 @@ import com.mall.auth.service.JwtService;
 import com.mall.auth.vo.LoginResponse;
 import com.mall.common.error.BizException;
 import com.mall.common.error.ErrorCode;
+
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 
@@ -68,7 +71,8 @@ public class AuthServiceImpl implements AuthService {
             if (!passwordMatched) {
                 throw new BizException(ErrorCode.UNAUTHORIZED);
             }
-
+            user.setLastLoginAt(LocalDateTime.now());
+            authUserMapper.updateLastLoginAt(user.getId(), user.getLastLoginAt());
             LoginResponse response = new LoginResponse();
             response.setToken(jwtService.generateAccessToken(user.getId(), user.getUsername()));
             response.setRefreshToken(jwtService.generateRefreshToken(user.getId(), user.getUsername()));
@@ -76,6 +80,7 @@ public class AuthServiceImpl implements AuthService {
             response.setUserId(user.getId().toString());
             response.setUsername(user.getUsername());
             response.setTokenType("Bearer");
+            
         return response;
     }
 
@@ -129,4 +134,41 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
+    @Override
+    public LoginResponse register(RegisterRequest request) {
+        
+         if(request== null 
+                || request.getUsername() == null
+                || request.getPassword() == null
+                || request.getUsername().trim().isEmpty()
+                || request.getPassword().trim().isEmpty()) {
+                throw new BizException(ErrorCode.PARAM_INVALID);
+            }
+            String username = request.getUsername().trim();
+            String password = request.getPassword();
+            AuthUser existingUser = authUserMapper.selectByUsername(username);
+            if (existingUser != null) {
+                throw new BizException(ErrorCode.PARAM_INVALID, "Username already exists");
+            }
+            AuthUser newUser = new AuthUser();
+            newUser.setUsername(username);
+            newUser.setPasswordHash(passwordEncoder.encode(password));
+            newUser.setNickname(request.getNickname());
+            newUser.setPhone(request.getPhone());
+            newUser.setEmail(request.getEmail());
+            newUser.setStatus(1);
+            newUser.setCreatedAt(LocalDateTime.now());
+            newUser.setUpdatedAt(LocalDateTime.now());
+            authUserMapper.insert(newUser);
+            LoginResponse response = new LoginResponse();
+            response.setToken(jwtService.generateAccessToken(newUser.getId(), newUser.getUsername()));
+            response.setRefreshToken(jwtService.generateRefreshToken(newUser.getId(), newUser.getUsername()));
+            response.setExpiresIn(jwtService.getRemainingSeconds(response.getToken()));
+            response.setUserId(newUser.getId().toString());
+            response.setUsername(newUser.getUsername());
+            response.setTokenType("Bearer");
+            return response;
+    }
 }
+
+

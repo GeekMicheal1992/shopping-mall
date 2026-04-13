@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mall.auth.dto.LoginRequest;
 import com.mall.auth.dto.LogoutRequest;
 import com.mall.auth.dto.RefreshTokenRequest;
+import com.mall.auth.dto.RegisterRequest;
 import com.mall.auth.service.AuthService;
 import com.mall.auth.vo.LoginResponse;
 import com.mall.common.api.ApiResponse;
@@ -44,4 +45,10 @@ public class AuthController {
         authService.logout(request.getAccessToken());
         return ApiResponses.success();
     }
+    @PostMapping("/register")
+    public ApiResponse<Void> register(@RequestBody @Valid RegisterRequest request) {
+        authService.register(request);
+        return ApiResponses.success();
+    }
+    
 }

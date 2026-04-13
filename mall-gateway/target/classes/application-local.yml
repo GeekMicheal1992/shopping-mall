@@ -1,0 +1,86 @@
+server:
+  port: 8080
+
+spring:
+  data:
+    redis:
+      host: 192.168.68.150
+      port: 6379
+      database: 0
+      timeout: 5000ms
+  
+  cloud:
+    gateway:
+      routes:
+        # 认证服务路由
+        - id: mall-auth
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=0
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@ipKeyResolver}"
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+
+        - id: mall-auth-login
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/login
+          filters:
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@ipKeyResolver}"
+                redis-rate-limiter.replenishRate: 3
+                redis-rate-limiter.burstCapacity: 5
+
+        # 用户服务路由
+        - id: mall-user
+          uri: http://localhost:8082
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@userKeyResolver}"
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+
+        # 商品服务路由
+        - id: mall-product
+          uri: lb://mall-product
+          predicates:
+            - Path=/product/**
+          filters:
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@ipKeyResolver}"
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+
+        # 订单服务路由
+        - id: mall-order
+          uri: lb://mall-order
+          predicates:
+            - Path=/order/**
+          filters:
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@ipKeyResolver}"
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+
+# 本地开发用 DEBUG 日志
+logging:
+  level:
+    com.mall.gateway: DEBUG
+    com.mall.gateway.filter: DEBUG
+    org.springframework.cloud.gateway: debug
+    org.springframework.http.server.reactive: debug
+

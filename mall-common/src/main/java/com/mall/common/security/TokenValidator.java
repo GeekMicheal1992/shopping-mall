@@ -1,38 +1,47 @@
 package com.mall.common.security;
 
 import java.util.Date;
+import java.nio.charset.StandardCharsets;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import java.nio.charset.StandardCharsets;
 
-
+@Component
 public class TokenValidator {
-    private static final String SECRET_KEY = "your-256-bit-secret"; 
+    
+    private String secretKey;
 
-    public static Claims parseToken(String token) {
+    @Value("${jwt.secret}")
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+    }
+
+    public Claims parseToken(String token) {
         try {
-               return Jwts.parser()
-                .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
+            return Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
-            } catch (Exception e) {
-                return null;
-            }
+                .parseSignedClaims(token)
+                .getPayload();
+        } catch (Exception e) {
+            System.err.println("Token parse error: " + e.getMessage());
+            return null;
         }
-      
-    public static boolean validateToken(String token) {
+    }
+    
+    public boolean validateToken(String token) {
         Claims claims = parseToken(token);
         if (claims == null) {
             return false;
         }
-        if(claims.getExpiration() != null && claims.getExpiration().before(new Date())) {
+        if (claims.getExpiration() != null && claims.getExpiration().before(new Date())) {
             return false;
         }
         String tokenType = claims.get("type", String.class);
         return "access".equals(tokenType);
     }
 }
-
