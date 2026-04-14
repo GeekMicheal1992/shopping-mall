@@ -27,16 +27,30 @@ public class UserServiceImpl implements UserService     {
     }
 
     @Override
-        public int createUser(User user) {
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
-        user.setStatus(1);
+        public int createUser(User user) { 
         return userMapper.insert(user);
     }
     @Override
     public int updateUser(User user) {
-        user.setUpdatedAt(LocalDateTime.now());
-        return userMapper.update(user);
+       User existingUser = userMapper.selectById(user.getId());
+       
+        if (existingUser == null) {
+            throw new RuntimeException("User not found");
+        }
+        if (user.getNickname() != null) {
+            existingUser.setNickname(user.getNickname());
+        }
+        if (user.getPhone() != null) {
+            existingUser.setPhone(user.getPhone());
+        }
+        if (user.getEmail() != null) {
+            existingUser.setEmail(user.getEmail());
+        }
+        if(user.getAvatar() != null){
+            existingUser.setAvatar(user.getAvatar());
+        }
+        existingUser.setUpdatedAt(LocalDateTime.now());
+        return userMapper.update(existingUser);
     }       
     
     

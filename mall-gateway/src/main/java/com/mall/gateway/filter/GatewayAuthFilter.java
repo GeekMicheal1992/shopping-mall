@@ -51,7 +51,7 @@ public class GatewayAuthFilter  implements GlobalFilter, Ordered {
 
         }
         String token = authHeader.substring(7);
-       Claims claims = tokenValidator.parseToken(token);
+        Claims claims = tokenValidator.parseToken(token);
         if (claims == null) {
             return writeUnauthorized(exchange.getResponse(), exchange.getRequest().getId(), ErrorCode.TOKEN_INVALID);
         }
@@ -90,7 +90,7 @@ public class GatewayAuthFilter  implements GlobalFilter, Ordered {
     
     @Override
     public int getOrder() {
-        return -100; // 确保在其他过滤器之前执行
+        return -100; 
     }
     
 }

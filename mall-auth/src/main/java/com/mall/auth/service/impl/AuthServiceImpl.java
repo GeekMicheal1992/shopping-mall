@@ -1,11 +1,15 @@
 package com.mall.auth.service.impl;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
+import com.mall.auth.dto.CreateUserRequest;
 import com.mall.auth.dto.LoginRequest;
 import com.mall.auth.dto.RegisterRequest;
 import com.mall.auth.entity.AuthUser;
@@ -28,12 +32,13 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final StringRedisTemplate stringRedisTemplate;
     private static final String TOKEN_BLACKLIST_PREFIX = "auth:token:blacklist:";
-
-    public AuthServiceImpl(AuthUserMapper authUserMapper, JwtService jwtService, StringRedisTemplate stringRedisTemplate) {
+    private final RestTemplate restTemplate;
+    private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
+    public AuthServiceImpl(AuthUserMapper authUserMapper, JwtService jwtService, StringRedisTemplate stringRedisTemplate, RestTemplate restTemplate) {
         this.authUserMapper = authUserMapper;
         this.jwtService = jwtService;
         this.stringRedisTemplate = stringRedisTemplate;
-        
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -160,6 +165,19 @@ public class AuthServiceImpl implements AuthService {
             newUser.setCreatedAt(LocalDateTime.now());
             newUser.setUpdatedAt(LocalDateTime.now());
             authUserMapper.insert(newUser);
+            try {
+                CreateUserRequest createUserRequest = new CreateUserRequest();
+                createUserRequest.setId(newUser.getId());
+                createUserRequest.setUsername(newUser.getUsername());
+                createUserRequest.setNickname(newUser.getNickname());
+                createUserRequest.setPhone(newUser.getPhone());
+                createUserRequest.setEmail(newUser.getEmail());
+                String userServiceUrl = "http://localhost:8082/create";
+            restTemplate.postForObject(userServiceUrl, createUserRequest, String.class);
+            } catch (Exception  e) {
+                log.error("Failed to create user record in user-service: {}", e.getMessage());
+            }
+           
             LoginResponse response = new LoginResponse();
             response.setToken(jwtService.generateAccessToken(newUser.getId(), newUser.getUsername()));
             response.setRefreshToken(jwtService.generateRefreshToken(newUser.getId(), newUser.getUsername()));
