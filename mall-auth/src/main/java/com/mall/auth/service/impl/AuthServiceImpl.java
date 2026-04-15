@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import com.mall.auth.dto.ChangePasswordRequest;
 import com.mall.auth.dto.CreateUserRequest;
 import com.mall.auth.dto.LoginRequest;
 import com.mall.auth.dto.RegisterRequest;
@@ -19,6 +20,8 @@ import com.mall.auth.service.JwtService;
 import com.mall.auth.vo.LoginResponse;
 import com.mall.common.error.BizException;
 import com.mall.common.error.ErrorCode;
+
+import jakarta.validation.Valid;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +43,7 @@ public class AuthServiceImpl implements AuthService {
         this.stringRedisTemplate = stringRedisTemplate;
         this.restTemplate = restTemplate;
     }
-
+  
     @Override
     public LoginResponse login(LoginRequest request) {
 
@@ -186,6 +189,27 @@ public class AuthServiceImpl implements AuthService {
             response.setUsername(newUser.getUsername());
             response.setTokenType("Bearer");
             return response;
+    }
+
+    @Override
+    public void changePassword(Long userId, @Valid ChangePasswordRequest request) {
+        AuthUser user = authUserMapper.selectById(userId);
+        if (user == null) {
+            throw new BizException(ErrorCode.UNAUTHORIZED);
+        }
+       String oldPassword = request.getOldPassword();
+       boolean passwordMatched = false;
+         try {
+              passwordMatched = passwordEncoder.matches(oldPassword, user.getPasswordHash());}
+            catch (IllegalArgumentException ex) {
+                passwordMatched = false;
+            }
+        if (!passwordMatched) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "旧密码不正确");
+        }
+            String newPasswordHash = passwordEncoder.encode(request.getNewPassword());
+            authUserMapper.updatePassword(userId, newPasswordHash);
+       
     }
 }
 

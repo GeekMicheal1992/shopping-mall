@@ -17,4 +17,6 @@ public interface AuthUserMapper {
 	int updateLastLoginAt(@Param("id") Long id, @Param("lastLoginAt") LocalDateTime lastLoginAt);
 
 	AuthUser selectById(@Param("id") Long id);
+
+	int updatePassword(@Param("id") Long id, @Param("newPassword") String newPassword);
 }

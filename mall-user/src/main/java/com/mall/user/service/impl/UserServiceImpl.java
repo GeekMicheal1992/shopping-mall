@@ -51,7 +51,17 @@ public class UserServiceImpl implements UserService     {
         }
         existingUser.setUpdatedAt(LocalDateTime.now());
         return userMapper.update(existingUser);
+    }
+
+    @Override
+    public void updateAvatar(Long userId, String avatarUrl) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+        throw new RuntimeException("用户不存在");
+        }
+        user.setAvatar(avatarUrl);
+        user.setUpdatedAt(LocalDateTime.now());
+        userMapper.updateAvatar(userId, avatarUrl);
     }       
-    
     
 }   

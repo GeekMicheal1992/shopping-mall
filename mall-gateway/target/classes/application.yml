@@ -38,7 +38,6 @@ security:
       - /error
       - /auth/register
     prefix:
-      - /auth/**
       - /actuator/**
 jwt:
   secret: mall-secret-key-2024-spring-security-jwt-token

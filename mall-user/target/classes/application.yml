@@ -4,7 +4,15 @@ server:
 spring:
   application:
     name: mall-user
+    
+  servlet:
+    multipart: 
+      max-file-size: 10MB
+      max-request-size: 10MB
 
+  web:
+    resources:
+      static-locations: file:./uploads/
   # 数据源配置
   datasource:
     url: jdbc:mysql://192.168.68.150:3306/mall_user?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf-8&allowPublicKeyRetrieval=true   
@@ -54,6 +62,9 @@ mybatis:
 logging:
   level:
     com.mall.user: debug
-    com.mall.user.mapper: debug
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+avatar:
+  upload-path: D:/mall-uploads/avatars/
+  url-prefix: /avatars/

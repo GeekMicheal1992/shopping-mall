@@ -66,4 +66,10 @@
         WHERE id = #{id}
     </select>
 
+    <update id="updatePassword">
+        UPDATE auth_user
+        SET password_hash = #{newPassword}
+        WHERE id = #{id}
+    </update>
+
 </mapper>

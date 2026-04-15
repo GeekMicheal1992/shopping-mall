@@ -4,6 +4,7 @@ package com.mall.auth.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mall.auth.dto.ChangePasswordRequest;
 import com.mall.auth.dto.LoginRequest;
 import com.mall.auth.dto.LogoutRequest;
 import com.mall.auth.dto.RefreshTokenRequest;
@@ -17,6 +18,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 
 @RestController
@@ -50,5 +52,13 @@ public class AuthController {
         authService.register(request);
         return ApiResponses.success();
     }
+
+    @PostMapping("/password/change")
+    public  ApiResponse<Void> changePassword( @RequestHeader("X-User-Id") Long userId,
+            @RequestBody @Valid ChangePasswordRequest request) {
+        authService.changePassword(userId, request);
+        return ApiResponses.success();
+    }
+   
     
 }
