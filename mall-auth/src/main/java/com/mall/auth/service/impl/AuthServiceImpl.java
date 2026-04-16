@@ -13,6 +13,7 @@ import com.mall.auth.dto.ChangePasswordRequest;
 import com.mall.auth.dto.CreateUserRequest;
 import com.mall.auth.dto.LoginRequest;
 import com.mall.auth.dto.RegisterRequest;
+import com.mall.auth.dto.ResetPasswordRequest;
 import com.mall.auth.entity.AuthUser;
 import com.mall.auth.mapper.AuthUserMapper;
 import com.mall.auth.service.AuthService;
@@ -24,6 +25,7 @@ import com.mall.common.error.ErrorCode;
 import jakarta.validation.Valid;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 
@@ -37,6 +39,7 @@ public class AuthServiceImpl implements AuthService {
     private static final String TOKEN_BLACKLIST_PREFIX = "auth:token:blacklist:";
     private final RestTemplate restTemplate;
     private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
+    private static final String RESET_CODE_PREFIX = "auth:reset:code:";
     public AuthServiceImpl(AuthUserMapper authUserMapper, JwtService jwtService, StringRedisTemplate stringRedisTemplate, RestTemplate restTemplate) {
         this.authUserMapper = authUserMapper;
         this.jwtService = jwtService;
@@ -211,6 +214,41 @@ public class AuthServiceImpl implements AuthService {
             authUserMapper.updatePassword(userId, newPasswordHash);
        
     }
+
+    @Override
+    public void sendResetCode(String phone) {
+        AuthUser user = authUserMapper.selectByPhone(phone);
+        if (user == null) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "手机号未注册");
+        }
+        String code = String.format("%06d", new Random().nextInt(999999));
+        String redisKey = RESET_CODE_PREFIX + phone;
+        stringRedisTemplate.opsForValue().set(redisKey, code, 10, TimeUnit  .MINUTES);
+        //没有接入短信服务，先打印日志模拟发送短信
+        log.info("重置密码验证码 for {}: {}", phone, code);
+       
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) {
+        String phone = request.getPhone();
+        String code = request.getCode();
+        String newPassword = request.getNewPassword();
+        String redisKey = RESET_CODE_PREFIX + phone;
+        String storedCode = stringRedisTemplate.opsForValue().get(redisKey);
+        if (storedCode == null || !storedCode.equals(code)) {   
+            throw new BizException(ErrorCode.PARAM_INVALID, "验证码无效或已过期");
+        }
+        AuthUser user = authUserMapper.selectByPhone(phone);
+        if (user == null) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "手机号未注册");
+        }
+        String newPasswordHash = passwordEncoder.encode(newPassword);
+        authUserMapper.updatePassword(user.getId(), newPasswordHash);
+        stringRedisTemplate.delete(redisKey);
+    }
 }
+
+
 
 

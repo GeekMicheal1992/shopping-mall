@@ -68,3 +68,5 @@ logging:
 avatar:
   upload-path: D:/mall-uploads/avatars/
   url-prefix: /avatars/
+jwt:
+  secret: mall-secret-key-2024-spring-security-jwt-token

@@ -5,10 +5,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mall.auth.dto.ChangePasswordRequest;
+import com.mall.auth.dto.ForgotPasswordRequest;
 import com.mall.auth.dto.LoginRequest;
 import com.mall.auth.dto.LogoutRequest;
 import com.mall.auth.dto.RefreshTokenRequest;
 import com.mall.auth.dto.RegisterRequest;
+import com.mall.auth.dto.ResetPasswordRequest;
 import com.mall.auth.service.AuthService;
 import com.mall.auth.vo.LoginResponse;
 import com.mall.common.api.ApiResponse;
@@ -60,5 +62,16 @@ public class AuthController {
         return ApiResponses.success();
     }
    
+    @PostMapping("/password/forgot")
+    public ApiResponse<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        authService.sendResetCode(request.getPhone());
+        return ApiResponses.success();
+    }
+
+    @PostMapping("/password/reset")
+    public ApiResponse<Void> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ApiResponses.success();
+    }
     
 }

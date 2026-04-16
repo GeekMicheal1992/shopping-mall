@@ -19,4 +19,6 @@ public interface AuthUserMapper {
 	AuthUser selectById(@Param("id") Long id);
 
 	int updatePassword(@Param("id") Long id, @Param("newPassword") String newPassword);
+
+    AuthUser selectByPhone(@Param("phone") String phone);
 }

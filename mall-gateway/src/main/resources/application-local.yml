@@ -52,11 +52,11 @@ spring:
 
         # 商品服务路由
         - id: mall-product
-          uri: lb://mall-product
+          uri: http://localhost:8083
           predicates:
             - Path=/product/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=0
             - name: RequestRateLimiter
               args:
                 key-resolver: "#{@ipKeyResolver}"

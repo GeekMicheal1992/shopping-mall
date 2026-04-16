@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "ProductApplication",
+            "request": "launch",
+            "mainClass": "com.mall.product.ProductApplication",
+            "projectName": "mall-product"
+        },
+        {
+            "type": "java",
             "name": "AuthServiceImpl",
             "request": "launch",
             "mainClass": "com.mall.auth.service.impl.AuthServiceImpl",

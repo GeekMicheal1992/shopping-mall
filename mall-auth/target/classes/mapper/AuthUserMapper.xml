@@ -72,4 +72,20 @@
         WHERE id = #{id}
     </update>
 
+    <select id="selectByPhone" resultType="com.mall.auth.entity.AuthUser">
+        SELECT
+            id,
+            username,
+            password_hash,
+            nickname,
+            phone,
+            email,
+            status,
+            last_login_at,
+            created_at,
+            updated_at
+        FROM auth_user
+        WHERE phone = #{phone}
+        LIMIT 1
+    </select>
 </mapper>

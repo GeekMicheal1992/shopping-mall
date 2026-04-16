@@ -37,6 +37,8 @@ security:
       - /auth/refresh
       - /error
       - /auth/register
+      - /auth/password/forgot
+      - /auth/password/reset
     prefix:
       - /actuator/**
 jwt:

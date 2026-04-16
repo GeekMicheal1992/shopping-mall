@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
 @ConfigurationPropertiesScan
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.mall.auth", "com.mall.common"})
 public class AuthApplication {
 
     public static void main(String[] args) {

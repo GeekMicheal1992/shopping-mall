@@ -7,31 +7,17 @@ spring:
 
   # 数据源配置
   datasource:
-    url: jdbc:mysql://localhost:3306/mall_product?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://192.168.68.150:3306/mall_product?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf-8&allowPublicKeyRetrieval=true   
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
-
-  # JPA 配置
-  jpa:
-    database: mysql
-    show-sql: true
-    hibernate:
-      ddl-auto: update  # 开发环境用 update，生产环境用 validate
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-        format_sql: true
-        use_sql_comments: true
-    open-in-view: false
-
   # Redis 配置（商品缓存）
   data:
     redis:
-      host: localhost
+      host: 192.168.68.150
       port: 6379
       database: 2
       timeout: 5000ms
@@ -43,7 +29,7 @@ spring:
 
   # RabbitMQ 配置（接收订单消息）
   rabbitmq:
-    host: localhost
+    host: 192.168.68.150
     port: 5672
     username: guest
     password: guest
@@ -58,3 +44,21 @@ logging:
     com.mall.product: debug
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql.BasicBinder: trace
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.mall.product.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+jwt:
+  secret: mall-secret-key-2024-spring-security-jwt-token
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
