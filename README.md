@@ -33,7 +33,7 @@ This project is a distributed e-commerce system based on Spring Cloud, designed 
 - **Containerization**: Optional Docker deployment for fast delivery in local and cloud environments.
 - **Readable Code**: Well-commented, clear structure, suitable for team collaboration and secondary development.
 
-## Use Cases
+## Utility Libraries
 
-- Interview portfolio, showcasing microservices design and hands-on skills
-- Personal learning, secondary development, or enterprise-level project reference
+- [Hutool](https://hutool.cn/): Java utility library used for simplifying common development tasks in this project.
+
