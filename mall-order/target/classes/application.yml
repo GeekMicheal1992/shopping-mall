@@ -7,8 +7,7 @@ spring:
 
   # 数据源配置
   datasource:
-    # MySQL 5.7 配置
-    url: jdbc:mysql://localhost:3306/mall_product?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+    url: jdbc:mysql://192.168.68.150:3306/mall_order?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf-8&allowPublicKeyRetrieval=true   
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -16,7 +15,7 @@ spring:
   # Redis 配置（分布式锁）
   data:
     redis:
-      host: localhost
+      host: 192.168.68.150
       port: 6379
       database: 3
       timeout: 5000ms
@@ -55,3 +54,6 @@ logging:
   level:
     com.mall.order: debug
     com.mall.order.mapper: debug
+
+jwt:
+  secret: mall-secret-key-2024-spring-security-jwt-token

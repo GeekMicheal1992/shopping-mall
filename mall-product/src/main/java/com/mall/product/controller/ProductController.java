@@ -25,9 +25,6 @@ public class ProductController {
         this.productService = productService;
     }
 
-    /**
-     * 商品列表（具体路径在前）
-     */
     @GetMapping("/product/list")
     public ApiResponse<Map<String, Object>> list(
             @RequestParam(name = "keyword", required = false) String keyword,
@@ -39,27 +36,21 @@ public class ProductController {
         return ApiResponses.success(result);
     }
 
-    /**
-     * 商品详情（变量路径在后）
-     */
+    
     @GetMapping("/product/{id}")
     public ApiResponse<Product> getProductById(@PathVariable(name = "id") Long id) {
         Product product = productService.getProductById(id);
         return ApiResponses.success(product);
     }
 
-    /**
-     * 新增商品
-     */
+    
     @PostMapping("/product")
     public ApiResponse<Void> create(@RequestBody Product product) {
         productService.createProduct(product);
         return ApiResponses.success();
     }
 
-    /**
-     * 更新商品
-     */
+    
     @PutMapping("/product/{id}")
     public ApiResponse<Void> update(
             @PathVariable(name = "id") Long id,
@@ -69,12 +60,15 @@ public class ProductController {
         return ApiResponses.success();
     }
 
-    /**
-     * 删除商品
-     */
+   
     @DeleteMapping("/product/{id}")
     public ApiResponse<Void> delete(@PathVariable(name = "id") Long id) {
         productService.deleteProduct(id);
         return ApiResponses.success();
     }
+
+    @GetMapping("/internal/{id}")
+    public Product getProductInternal(@PathVariable(name = "id") Long id) {
+        return productService.getProductById(id);
+}
 }

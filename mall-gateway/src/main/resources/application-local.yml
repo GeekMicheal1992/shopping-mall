@@ -65,11 +65,11 @@ spring:
 
         # 订单服务路由
         - id: mall-order
-          uri: lb://mall-order
+          uri: http://localhost:8084
           predicates:
             - Path=/order/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=0
             - name: RequestRateLimiter
               args:
                 key-resolver: "#{@ipKeyResolver}"

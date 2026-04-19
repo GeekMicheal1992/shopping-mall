@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "OrderApplication",
+            "request": "launch",
+            "mainClass": "com.mall.order.OrderApplication",
+            "projectName": "mall-order"
+        },
+        {
+            "type": "java",
             "name": "ProductApplication",
             "request": "launch",
             "mainClass": "com.mall.product.ProductApplication",

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mall.order.mapper.OrderMapper">
+
+    <resultMap id="OrderResultMap" type="com.mall.order.entity.Order">
+        <id column="id" property="id"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <insert id="insertOrder">
+        INSERT INTO orders (id, order_no, user_id, user_name, total_amount, status, remark)
+        VALUES (#{id}, #{orderNo}, #{userId}, #{userName}, #{totalAmount}, #{status}, #{remark})
+    </insert>
+
+    <insert id="insertOrderItems">
+        INSERT INTO order_item (order_id, product_id, product_name, product_price, quantity, total_price)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.orderId}, #{item.productId}, #{item.productName}, #{item.productPrice}, #{item.quantity}, #{item.totalPrice})
+        </foreach>
+    </insert>
+
+    <select id="selectOrderById" resultMap="OrderResultMap">
+        SELECT * FROM orders WHERE id = #{id}
+    </select>
+
+    <select id="selectOrdersByUserId" resultMap="OrderResultMap">
+        SELECT * FROM orders WHERE user_id = #{userId}
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="selectCountByUserId" resultType="int">
+        SELECT COUNT(*) FROM orders WHERE user_id = #{userId}
+    </select>
+
+    <update id="updateOrderStatus">
+        UPDATE orders SET status = #{status} WHERE id = #{id}
+    </update>
+
+</mapper>
