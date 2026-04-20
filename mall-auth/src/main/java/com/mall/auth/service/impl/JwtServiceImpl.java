@@ -24,6 +24,9 @@ public class JwtServiceImpl implements JwtService {
     private static final String CLAIM_TYPE = "type";
     private static final String TYPE_ACCESS = "access";
     private static final String TYPE_REFRESH = "refresh";
+    private final SecretKey signingKey;
+    private final long accessExpireMs;
+    private final long refreshExpireMs;
     
     public JwtServiceImpl(JwtProperties jwtProperties) {
         this.signingKey = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
@@ -31,9 +34,7 @@ public class JwtServiceImpl implements JwtService {
         this.refreshExpireMs = jwtProperties.getRefreshExpiration();
     }
 
-    private final SecretKey signingKey;
-    private final long accessExpireMs;
-    private final long refreshExpireMs;
+   
 
 
     @Override

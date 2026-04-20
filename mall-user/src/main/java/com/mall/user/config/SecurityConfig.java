@@ -1,5 +1,6 @@
 package com.mall.user.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -8,12 +9,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import com.mall.user.filter.UserContextFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)  
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+
+    @Value("${jwt.secret}")
+    private String secretKey;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -21,10 +26,10 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/internal/**", "/create").permitAll()  
+                .requestMatchers("/internal/**", "/create").permitAll()
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(new UserContextFilter(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(new UserContextFilter(secretKey), UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
     }

@@ -66,9 +66,10 @@ public class GatewayAuthFilter  implements GlobalFilter, Ordered {
         String UserId = String.valueOf(userIdInt);
         String role = claims.get("role", String.class);
         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
-                .header("X-User-Id", UserId)
-                .header("X-User-Name", userName)
-                .header("X-User-Role", role)
+                // .header("X-User-Id", UserId)
+                // .header("X-User-Name", userName)
+                // .header("X-User-Role", role)
+                .header("Authorization", "Bearer " + token)
                 .build();
 
         ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();

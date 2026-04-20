@@ -1,5 +1,6 @@
 package com.mall.order.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -16,6 +17,9 @@ import com.mall.order.filter.UserContextFilter;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
+    @Value("${jwt.secret}")
+    private String secretKey;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -25,7 +29,7 @@ public class SecurityConfig {
                 .requestMatchers("/internal/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(new UserContextFilter(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(new UserContextFilter(secretKey), UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
     }
