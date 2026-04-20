@@ -73,3 +73,17 @@ These combined strategies (TTL jitter, locks/deduplication, Bloom filters, and e
 	- Consider token freshness for permission changes; use short-lived tokens, refresh tokens, or a permission blacklist to force revocation when needed.
 	- In high-concurrency or distributed environments, centralize permission management and use caching or robust synchronization to ensure consistency and performance.
 
+## Token Handling and Service Access Restrictions
+
+- **Gateway forwards tokens only**: The gateway validates incoming JWTs and forwards the token (or user context) to downstream services for further processing. Downstream services are responsible for parsing and validating tokens themselves rather than trusting the gateway implicitly.
+- **Key management best practices**:
+	- **Environment variables / secrets**: Keep JWT signing keys or verification secrets in environment variables or the platform's secret store (do not hard-code them in source code).
+	- **Rotation & KMS**: Rotate keys regularly and consider using a Key Management Service (KMS) to store and rotate keys securely to avoid single-point failures or loss.
+	- **Prevent forged tokens**: Proper key management and short-lived tokens reduce the risk of malicious actors forging tokens to bypass the gateway.
+- **Restrict direct access to business services**:
+	- **Bind to localhost**: In deployment, services can listen only on localhost (or internal network interfaces) so they are not accessible directly from the public network.
+	- **IP whitelist / filter**: Add an IP whitelist filter at the service level to accept requests only from the gateway's IP(s), or implement a lightweight IP-filtering middleware inside services.
+	- **Network-level controls**: Configure environment firewalls, security groups, or network policies in production to allow traffic to business services only from the gateway.
+
+These measures together (secure key storage, token rotation, per-service token validation, and network restrictions) help ensure tokens cannot be trivially forged or used to bypass the gateway. Future work: enforce that business services accept traffic only from the gateway by combining binding, IP whitelisting, and production firewall rules.
+
