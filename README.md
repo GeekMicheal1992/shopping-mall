@@ -56,20 +56,20 @@ This project is a distributed e-commerce system based on Spring Cloud, designed 
 
 These combined strategies (TTL jitter, locks/deduplication, Bloom filters, and empty markers) are commonly used together in production to address avalanche, breakdown, and penetration problems when using Redis as a caching layer.
 
-## 权限功能 (Authorization)
+## Authorization (Permissions)
 
-- **概述**: 项目采用基于角色/权限的访问控制（RBAC），通过 `mall-auth` 签发的 JWT 在网关和各服务间传播用户身份、角色与权限信息，用于统一鉴权与细粒度授权。
-- **实现要点**:
-	- **认证与令牌**: `mall-auth` 负责用户认证并签发 JWT，Token 中包含 `userId`、`roles` 与 `permissions` 等声明。
-	- **网关校验**: `mall-gateway` 的全局过滤器（例如 `GatewayAuthFilter`）会校验 JWT，有效后将用户上下文（userId/roles/permissions）注入请求头并转发给下游服务。
-	- **服务端授权**: 各微服务在 `SecurityConfig` 或控制器方法层面读取请求头或解析 Token，使用 Spring Security 注解（如 `@PreAuthorize`）或自定义拦截器来判断权限并拒绝无权请求。
-	- **数据存储**: 用户、角色与权限关系保存在认证模块的数据库（参见 `AuthUser` 实体与对应 Mapper）。
-- **简单请求流程**:
-	1. 用户在 `mall-auth` 登录，获取包含权限声明的 JWT。
-	2. 客户端带 Token 请求 `mall-gateway`，网关校验后注入用户上下文并转发。
-	3. 下游服务读取上下文或再次校验 Token，基于权限决定是否允许访问；权限不足返回统一 403 响应。
-- **扩展与注意**:
-	- 建议在网关做路由/接口级的粗粒度控制，在业务服务做更细粒度的权限校验。
-	- 权限变更需考虑 Token 的实时性，可采用短期 Token、刷新机制或权限黑名单以强制失效。
-	- 对于高并发和分布式环境，建议将权限中心化并使用缓存或健壮的同步策略以保证一致性与性能。
+- **Overview**: The project uses role-based access control (RBAC). JWTs issued by `mall-auth` propagate user identity, roles, and permission claims across the gateway and downstream services to enable unified authentication and fine-grained authorization.
+- **Implementation highlights**:
+	- **Authentication & tokens**: `mall-auth` handles user authentication and issues JWTs that include claims such as `userId`, `roles`, and `permissions`.
+	- **Gateway validation**: The global filter in `mall-gateway` (for example, `GatewayAuthFilter`) validates the JWT; when valid, it injects the user context (`userId/roles/permissions`) into request headers and forwards the request to downstream services.
+	- **Server-side authorization**: Each microservice reads the injected headers or parses the token in `SecurityConfig` or controller layers and enforces authorization via Spring Security annotations (e.g., `@PreAuthorize`) or custom interceptors to reject unauthorized requests.
+	- **Data storage**: User, role, and permission relationships are stored in the authentication module database (see the `AuthUser` entity and its Mapper).
+- **Request flow**:
+	1. A user authenticates with `mall-auth` and receives a JWT containing permission claims.
+	2. The client sends requests to `mall-gateway` with the token; the gateway validates the token and forwards the request with the user context.
+	3. Downstream services read the context or re-validate the token and decide access based on permissions; insufficient permissions result in a unified `403` response.
+- **Notes & extensions**:
+	- Use coarse-grained route/interface checks at the gateway and fine-grained permission checks inside business services.
+	- Consider token freshness for permission changes; use short-lived tokens, refresh tokens, or a permission blacklist to force revocation when needed.
+	- In high-concurrency or distributed environments, centralize permission management and use caching or robust synchronization to ensure consistency and performance.
 
