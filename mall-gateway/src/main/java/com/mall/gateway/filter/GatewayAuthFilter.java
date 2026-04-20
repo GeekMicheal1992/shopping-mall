@@ -64,9 +64,11 @@ public class GatewayAuthFilter  implements GlobalFilter, Ordered {
         String userName = claims.get("sub", String.class);
 
         String UserId = String.valueOf(userIdInt);
+        String role = claims.get("role", String.class);
         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                 .header("X-User-Id", UserId)
                 .header("X-User-Name", userName)
+                .header("X-User-Role", role)
                 .build();
 
         ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
@@ -91,6 +93,16 @@ public class GatewayAuthFilter  implements GlobalFilter, Ordered {
     @Override
     public int getOrder() {
         return -100; 
+    }
+
+    // 新增：403 无权限响应
+    private Mono<Void> writeForbidden(ServerHttpResponse response, String message) {
+        response.setStatusCode(HttpStatus.FORBIDDEN);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        String body = String.format("{\"code\":403,\"message\":\"%s\",\"timestamp\":%d}", 
+            message, System.currentTimeMillis());
+        byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+        return response.writeWith(Mono.just(response.bufferFactory().wrap(bytes)));
     }
     
 }

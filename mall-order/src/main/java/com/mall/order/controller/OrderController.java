@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 
 import java.util.Map;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -32,18 +33,21 @@ public class OrderController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ApiResponse<Long> createOrder(@RequestBody @Valid CreateOrderRequest request) {
         Long orderId = orderService.createOrder(request);
         return ApiResponses.success(orderId);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ApiResponse<Order> getOrder(@PathVariable(name = "id") Long id) {
         Order order = orderService.getOrderById(id);
         return ApiResponses.success(order);
     }
 
     @GetMapping("/list")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ApiResponse<Map<String, Object>> getOrdersByUserId( @RequestParam(name = "userId") Long userId,   
                                                               @RequestParam(name = "page", defaultValue = "1") int page,
                                                               @RequestParam(name = "size", defaultValue = "10") int size) {
@@ -52,6 +56,7 @@ public class OrderController {
     }
 
     @PutMapping("/cancel/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ApiResponse<Void> cancelOrder(@PathVariable(name = "id") Long id) {
         orderService.cancelOrder(id);
         return ApiResponses.success();

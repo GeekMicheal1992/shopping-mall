@@ -56,3 +56,20 @@ This project is a distributed e-commerce system based on Spring Cloud, designed 
 
 These combined strategies (TTL jitter, locks/deduplication, Bloom filters, and empty markers) are commonly used together in production to address avalanche, breakdown, and penetration problems when using Redis as a caching layer.
 
+## 权限功能 (Authorization)
+
+- **概述**: 项目采用基于角色/权限的访问控制（RBAC），通过 `mall-auth` 签发的 JWT 在网关和各服务间传播用户身份、角色与权限信息，用于统一鉴权与细粒度授权。
+- **实现要点**:
+	- **认证与令牌**: `mall-auth` 负责用户认证并签发 JWT，Token 中包含 `userId`、`roles` 与 `permissions` 等声明。
+	- **网关校验**: `mall-gateway` 的全局过滤器（例如 `GatewayAuthFilter`）会校验 JWT，有效后将用户上下文（userId/roles/permissions）注入请求头并转发给下游服务。
+	- **服务端授权**: 各微服务在 `SecurityConfig` 或控制器方法层面读取请求头或解析 Token，使用 Spring Security 注解（如 `@PreAuthorize`）或自定义拦截器来判断权限并拒绝无权请求。
+	- **数据存储**: 用户、角色与权限关系保存在认证模块的数据库（参见 `AuthUser` 实体与对应 Mapper）。
+- **简单请求流程**:
+	1. 用户在 `mall-auth` 登录，获取包含权限声明的 JWT。
+	2. 客户端带 Token 请求 `mall-gateway`，网关校验后注入用户上下文并转发。
+	3. 下游服务读取上下文或再次校验 Token，基于权限决定是否允许访问；权限不足返回统一 403 响应。
+- **扩展与注意**:
+	- 建议在网关做路由/接口级的粗粒度控制，在业务服务做更细粒度的权限校验。
+	- 权限变更需考虑 Token 的实时性，可采用短期 Token、刷新机制或权限黑名单以强制失效。
+	- 对于高并发和分布式环境，建议将权限中心化并使用缓存或健壮的同步策略以保证一致性与性能。
+

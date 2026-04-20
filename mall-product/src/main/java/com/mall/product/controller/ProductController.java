@@ -1,5 +1,6 @@
 package com.mall.product.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +27,7 @@ public class ProductController {
     }
 
     @GetMapping("/product/list")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ApiResponse<Map<String, Object>> list(
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "categoryId", required = false) Long categoryId,
@@ -38,6 +40,7 @@ public class ProductController {
 
     
     @GetMapping("/product/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ApiResponse<Product> getProductById(@PathVariable(name = "id") Long id) {
         Product product = productService.getProductById(id);
         return ApiResponses.success(product);
@@ -45,6 +48,7 @@ public class ProductController {
 
     
     @PostMapping("/product")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> create(@RequestBody Product product) {
         productService.createProduct(product);
         return ApiResponses.success();
@@ -52,6 +56,7 @@ public class ProductController {
 
     
     @PutMapping("/product/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> update(
             @PathVariable(name = "id") Long id,
             @RequestBody Product product) {
@@ -62,6 +67,7 @@ public class ProductController {
 
    
     @DeleteMapping("/product/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> delete(@PathVariable(name = "id") Long id) {
         productService.deleteProduct(id);
         return ApiResponses.success();

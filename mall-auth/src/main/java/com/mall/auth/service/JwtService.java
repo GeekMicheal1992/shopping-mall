@@ -1,8 +1,8 @@
 package com.mall.auth.service;
 
 public interface JwtService {
-    String generateAccessToken(Long userId, String username);
-    String generateRefreshToken(Long userId, String username);
+    String generateAccessToken(Long userId, String username,String role);
+    String generateRefreshToken(Long userId, String username,String role);
 
     boolean validateAccessToken(String token);
     boolean validateRefreshToken(String token);

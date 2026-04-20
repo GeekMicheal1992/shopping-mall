@@ -37,7 +37,7 @@ public class JwtServiceImpl implements JwtService {
 
 
     @Override
-    public String generateAccessToken(Long userId, String username)  {
+    public String generateAccessToken(Long userId, String username,String role)  {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + accessExpireMs);
         String jti = UUID.randomUUID().toString();
@@ -47,6 +47,7 @@ public class JwtServiceImpl implements JwtService {
             .subject(username)                
             .claim(CLAIM_UID, userId)          
             .claim(CLAIM_TYPE, TYPE_ACCESS)    
+            .claim("role", role)              
             .issuedAt(now)                    
             .expiration(expiry)                
             .signWith(signingKey)             
@@ -54,7 +55,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateRefreshToken(Long userId, String username) {
+    public String generateRefreshToken(Long userId, String username,String role) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + refreshExpireMs);
         String jti = UUID.randomUUID().toString();
@@ -64,6 +65,7 @@ public class JwtServiceImpl implements JwtService {
                 .subject(username)
                 .claim(CLAIM_UID, userId)
                 .claim(CLAIM_TYPE, TYPE_REFRESH)
+                .claim("role", role)
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(signingKey)

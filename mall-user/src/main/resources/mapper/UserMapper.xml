@@ -5,17 +5,30 @@
 
 <mapper namespace="com.mall.user.mapper.UserMapper">
 
-    <select id="selectById" resultType="com.mall.user.entity.User">
+    <resultMap id="BaseResultMap" type="com.mall.user.entity.User">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="nickname" property="nickname"/>
+        <result column="phone" property="phone"/>
+        <result column="email" property="email"/>
+        <result column="avatar" property="avatar"/>
+        <result column="status" property="status"/>
+        <result column="role" property="role"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
         SELECT * FROM user WHERE id = #{id}
     </select>
 
-    <select id="selectByUsername" resultType="com.mall.user.entity.User">
+    <select id="selectByUsername" resultMap="BaseResultMap">
         SELECT * FROM user WHERE username = #{username}
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO user (username, nickname, phone, email, avatar, status, created_at, updated_at)
-        VALUES (#{username}, #{nickname}, #{phone}, #{email}, #{avatar}, #{status}, #{createdAt}, #{updatedAt})
+        INSERT INTO user (username, nickname, phone, email, avatar, status, role, created_at, updated_at)
+        VALUES (#{username}, #{nickname}, #{phone}, #{email}, #{avatar}, #{status}, #{role}, #{createdAt}, #{updatedAt})
     </insert>
     
     <update id="update">
@@ -25,6 +38,7 @@
             email = #{email}, 
             avatar = #{avatar}, 
             status = #{status}, 
+            role = #{role},
             updated_at = #{updatedAt}
         WHERE id = #{id}
     </update>

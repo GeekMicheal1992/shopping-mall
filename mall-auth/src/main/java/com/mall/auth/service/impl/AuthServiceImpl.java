@@ -85,8 +85,8 @@ public class AuthServiceImpl implements AuthService {
             user.setLastLoginAt(LocalDateTime.now());
             authUserMapper.updateLastLoginAt(user.getId(), user.getLastLoginAt());
             LoginResponse response = new LoginResponse();
-            response.setToken(jwtService.generateAccessToken(user.getId(), user.getUsername()));
-            response.setRefreshToken(jwtService.generateRefreshToken(user.getId(), user.getUsername()));
+            response.setToken(jwtService.generateAccessToken(user.getId(), user.getUsername(), user.getRole()));
+            response.setRefreshToken(jwtService.generateRefreshToken(user.getId(), user.getUsername(), user.getRole()));
             response.setExpiresIn(jwtService.getRemainingSeconds(response.getToken()));
             response.setUserId(user.getId().toString());
             response.setUsername(user.getUsername());
@@ -115,8 +115,8 @@ public class AuthServiceImpl implements AuthService {
             throw new BizException(ErrorCode.UNAUTHORIZED);
         }
         LoginResponse response = new LoginResponse();
-        response.setToken(jwtService.generateAccessToken(user.getId(), user.getUsername()));
-        response.setRefreshToken(jwtService.generateRefreshToken(user.getId(), user.getUsername()));
+        response.setToken(jwtService.generateAccessToken(user.getId(), user.getUsername(),user.getRole()));
+        response.setRefreshToken(jwtService.generateRefreshToken(user.getId(), user.getUsername(),user.getRole()));
         response.setExpiresIn(jwtService.getRemainingSeconds(response.getToken()));
         response.setUserId(user.getId().toString());
         response.setUsername(user.getUsername());
@@ -168,6 +168,7 @@ public class AuthServiceImpl implements AuthService {
             newUser.setPhone(request.getPhone());
             newUser.setEmail(request.getEmail());
             newUser.setStatus(1);
+            newUser.setRole("USER");
             newUser.setCreatedAt(LocalDateTime.now());
             newUser.setUpdatedAt(LocalDateTime.now());
             authUserMapper.insert(newUser);
@@ -178,6 +179,7 @@ public class AuthServiceImpl implements AuthService {
                 createUserRequest.setNickname(newUser.getNickname());
                 createUserRequest.setPhone(newUser.getPhone());
                 createUserRequest.setEmail(newUser.getEmail());
+                createUserRequest.setRole(newUser.getRole());
                 String userServiceUrl = "http://localhost:8082/create";
             restTemplate.postForObject(userServiceUrl, createUserRequest, String.class);
             } catch (Exception  e) {
@@ -185,8 +187,8 @@ public class AuthServiceImpl implements AuthService {
             }
            
             LoginResponse response = new LoginResponse();
-            response.setToken(jwtService.generateAccessToken(newUser.getId(), newUser.getUsername()));
-            response.setRefreshToken(jwtService.generateRefreshToken(newUser.getId(), newUser.getUsername()));
+            response.setToken(jwtService.generateAccessToken(newUser.getId(), newUser.getUsername(), newUser.getRole()));
+            response.setRefreshToken(jwtService.generateRefreshToken(newUser.getId(), newUser.getUsername(), newUser.getRole()));
             response.setExpiresIn(jwtService.getRemainingSeconds(response.getToken()));
             response.setUserId(newUser.getId().toString());
             response.setUsername(newUser.getUsername());

@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService     {
 
     @Override
         public int createUser(User user) { 
+        user.setRole("USER");
         return userMapper.insert(user);
     }
     @Override

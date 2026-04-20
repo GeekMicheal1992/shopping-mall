@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,18 +37,21 @@ private static final Logger log = LoggerFactory.getLogger(UserController.class);
     }
     
     @GetMapping("/info")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public User getMethodName(@RequestHeader("X-User-Id") Long userId) {
 
         return userService.getUserById(userId);
     }
     
     @PutMapping("/info")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public int updateUserInfo(@RequestHeader("X-User-Id") Long userId, @RequestBody User user) {
         user.setId(userId);
         return userService.updateUser(user);
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public void createUser(@RequestBody CreateUserRequest request) {
         User user = new User();
         user.setId(request.getId());
@@ -56,12 +60,15 @@ private static final Logger log = LoggerFactory.getLogger(UserController.class);
         user.setPhone(request.getPhone());
         user.setEmail(request.getEmail());
         user.setStatus(1);
+        user.setRole(request.getRole()); 
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
+
         userService.createUser(user);
     }
 
   @PostMapping("/avatar")
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 public String uploadAvatar(@RequestHeader("X-User-Id") Long userId, 
                            @RequestParam("file") MultipartFile file) throws IOException {
     String avatarUrl = userService.uploadAvatar(userId, file);
