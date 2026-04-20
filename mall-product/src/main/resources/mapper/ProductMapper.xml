@@ -68,4 +68,15 @@
     <delete id="deleteById">
         DELETE FROM product WHERE id = #{id} 
     </delete>
+
+    <select id="selectAllIds" resultType="long">
+        SELECT id FROM product LIMIT #{offset}, #{limit}    
+    </select>
+
+    <select id="selectHotProducts" resultMap="BaseResultMap">
+        SELECT * FROM product
+        WHERE status = 1
+        ORDER BY sort DESC, id DESC
+        LIMIT #{limit}
+</select>
 </mapper>

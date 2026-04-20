@@ -26,6 +26,15 @@ spring:
           max-active: 8
           max-idle: 8
           min-idle: 0
+    redisson:
+        config: |
+          singleServerConfig:
+            address: "redis://192.168.68.150:6379"
+            database: 2
+            connectionPoolSize: 64
+            connectionMinimumIdleSize: 10
+          threads: 16
+          nettyThreads: 32
 
   # RabbitMQ 配置（接收订单消息）
   rabbitmq:

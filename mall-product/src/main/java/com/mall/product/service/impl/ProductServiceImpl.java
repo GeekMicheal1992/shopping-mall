@@ -2,9 +2,12 @@ package com.mall.product.service.impl;
 
 import com.mall.common.error.BizException;
 import com.mall.common.error.ErrorCode;
+import com.mall.product.component.ProductBloomFilter;
 import com.mall.product.entity.Product;
 import com.mall.product.mapper.ProductMapper;
+import com.mall.product.service.ProductCacheService;
 import com.mall.product.service.ProductService;
+
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -15,9 +18,13 @@ import java.util.Map;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductMapper productMapper;
+    private final ProductCacheService productCacheService;
+    private final ProductBloomFilter productBloomFilter;
 
-    public ProductServiceImpl(ProductMapper productMapper) {
+    public ProductServiceImpl(ProductMapper productMapper, ProductCacheService productCacheService, ProductBloomFilter productBloomFilter) {
         this.productMapper = productMapper;
+        this.productCacheService = productCacheService;
+        this.productBloomFilter = productBloomFilter;
     }
 
     @Override
@@ -42,12 +49,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product getProductById(Long id) {
-        // 参数校验
+        
         if (id == null || id <= 0) {
             throw new BizException(ErrorCode.PARAM_INVALID, "商品ID不能为空");
         }
-        // 查询商品
-        Product product = productMapper.selectById(id);
+       
+        Product product = productCacheService.getById(id);
         if (product == null) {
             throw new BizException(ErrorCode.NOT_FOUND, "商品不存在");
         }
@@ -72,6 +79,8 @@ public class ProductServiceImpl implements ProductService {
         }
         // 保存商品
         productMapper.insert(product);
+        productCacheService.setCache(product);
+        productBloomFilter.add(product.getId());
     }
 
     @Override
@@ -109,6 +118,7 @@ public class ProductServiceImpl implements ProductService {
         }
         // 更新商品
         productMapper.update(existing);
+        productCacheService.deleteCache(product.getId());
     }
 
     @Override
@@ -124,5 +134,6 @@ public class ProductServiceImpl implements ProductService {
         }
         // 删除商品
         productMapper.deleteById(id);
+        productCacheService.deleteCache(id);
     }
 }

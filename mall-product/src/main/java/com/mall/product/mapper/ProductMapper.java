@@ -24,4 +24,6 @@ public interface ProductMapper {
     int update(Product product);
     int deleteById(@Param("id") Long id);
 
+    List<Long> selectAllIds(@Param("offset") int offset, @Param("limit") int limit);
+    List<Product> selectHotProducts(@Param("limit") int limit);
 }
